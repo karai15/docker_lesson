@@ -1,0 +1,36 @@
+version: '3'
+
+networks:
+  frontend:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.200.0/24
+          gateway: 192.168.200.1
+
+services:
+  ubuntu_1:
+    image: myubuntu:16.04
+    container_name: Guest_1
+    volumes:
+      - ./:/opt  # <ホスト側のdir>:<コンテナ側のdir> (共有するディレクトリの指定)
+    networks:
+      frontend:
+        ipv4_address: 192.168.200.11
+    entrypoint: bash -c "sleep infinity"
+    # -cオプションでbashに引数を渡す
+    # sleep infinity にしておくことでコンテナ起動後にすぐ停止することを防止
+
+  ubuntu_2:
+    image: myubuntu:16.04
+    container_name: Guest_2
+    volumes:
+      - ./:/opt
+    networks:
+      frontend:
+        ipv4_address: 192.168.200.12
+    entrypoint: bash -c "sleep infinity"
+
+    # Guest_1: iperf -s -u
+    # Guest_2: iperf -c 192.168.200.11 -i1 -t5 -b100M -u
